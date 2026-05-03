@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cosplay Anything</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="hero">
+        <div class="hero-copy">
+            <p class="eyebrow">Pollinations-powered cosplay lab</p>
+            <h1>Cosplay Anything</h1>
+            <p class="hero-text">Upload a character image, choose a grounded cosplay vibe, and generate a photoreal cosplay shot with your own Pollinations key.</p>
+        </div>
+        <div class="toggle-bar">
+            <label for="halloween-toggle">Halloween mode</label>
+            <input type="checkbox" id="halloween-toggle">
+        </div>
+    </header>
+
+    <main class="app-shell">
+        <section class="status-strip">
+            <article class="status-card">
+                <span class="status-label">API Key</span>
+                <strong id="api-key-status-value">Not connected</strong>
+                <small id="api-key-status-note">Add a Pollinations publishable key to unlock generation and balance info.</small>
+            </article>
+            <article class="status-card">
+                <span class="status-label">Balance</span>
+                <strong id="balance-value">Waiting for key</strong>
+                <small id="balance-note">Balance is fetched from your Pollinations account after you save a key.</small>
+            </article>
+            <article class="status-card">
+                <span class="status-label">Model Price</span>
+                <strong id="model-price-value">Loading…</strong>
+                <small id="model-price-note">Pricing updates with the selected image model.</small>
+            </article>
+        </section>
+
+        <div class="container">
+            <section class="panel" id="input-panel">
+                <div class="panel-heading">
+                    <h2>Reference Image</h2>
+                    <p>Use art, screenshots, or character sheets. The generator keeps the look grounded as real-world cosplay.</p>
+                </div>
+                <div id="image-dropper" class="dropper" title="Click to upload, or drop/paste an image">
+                    <button id="paste-btn" type="button" title="Paste image from clipboard">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+                    </button>
+                    <p id="dropper-label">Click to upload, drop an image, or paste from clipboard</p>
+                    <img id="image-preview" src="" alt="Image preview" class="hidden">
+                </div>
+                <input type="file" id="file-input" accept="image/*" class="hidden">
+            </section>
+
+            <section class="panel panel-controls" id="action-panel">
+                <div class="panel-heading">
+                    <h2>Generation Controls</h2>
+                    <p>Your key is saved in this browser only. Create one at <a href="https://enter.pollinations.ai" target="_blank" rel="noreferrer">enter.pollinations.ai</a>.</p>
+                </div>
+
+                <div class="key-row">
+                    <div class="form-group form-group-wide">
+                        <label for="api-key-input">Pollinations API key</label>
+                        <input id="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="pk_..." />
+                    </div>
+                    <button id="save-key-btn" type="button" class="secondary-btn">Save key</button>
+                    <button id="clear-key-btn" type="button" class="ghost-btn">Clear</button>
+                </div>
+                <p class="helper-copy" id="api-key-note">Publishable keys are best for client-side apps like GitHub Pages.</p>
+
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="image-model-select">Image model</label>
+                        <select id="image-model-select" disabled>
+                            <option value="">Loading models…</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="image-quality">Quality</label>
+                        <select id="image-quality">
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="hd">HD</option>
+                            <option value="low">Low</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="image-size">Frame size</label>
+                        <select id="image-size">
+                            <option value="1024x1024" selected>Square 1024</option>
+                            <option value="1536x1024">Landscape 1536×1024</option>
+                            <option value="1024x1536">Portrait 1024×1536</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cosplayer-gender">Cosplayer</label>
+                        <select id="cosplayer-gender">
+                            <option value="girl" selected>Girl</option>
+                            <option value="boy">Boy</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cosplay-budget">Budget</label>
+                        <select id="cosplay-budget">
+                            <option value="standard quality" selected>Standard</option>
+                            <option value="professional grade, movie quality">Professional</option>
+                            <option value="low budget, DIY style">Budget / DIY</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="cosplay-location">Location</label>
+                        <select id="cosplay-location">
+                            <option value="at Comiket, Tokyo" selected>Comiket (Tokyo)</option>
+                            <option value="at Anime Expo, Los Angeles">Anime Expo (L.A.)</option>
+                            <option value="at Japan Expo, Paris">Japan Expo (Paris)</option>
+                            <option value="at Comic-Con, San Diego">Comic-Con (San Diego)</option>
+                            <option value="at MCM Comic Con London">MCM Comic Con (London)</option>
+                            <option value="in a public park on a sunny day">Public Park (Sunny)</option>
+                            <option value="in a futuristic neon-lit city at night">Futuristic City (Night)</option>
+                        </select>
+                    </div>
+                </div>
+
+                <button id="generate-btn" type="button" disabled>Generate Cosplay</button>
+            </section>
+
+            <section class="panel" id="output-panel">
+                <div class="panel-heading">
+                    <h2>Generated Cosplay</h2>
+                    <p id="output-meta">Your generated cosplay image will appear here.</p>
+                </div>
+                <div id="output-container" class="dropper output-dropper">
+                    <div id="loader" class="hidden"></div>
+                    <p id="output-placeholder">Save a key, upload a reference image, and generate your first cosplay shot.</p>
+                    <img id="output-image" src="" alt="Generated cosplay" class="hidden">
+                </div>
+                <a id="download-link" class="download-link hidden" href="#" download="cosplay-anything.png">Download image</a>
+            </section>
+        </div>
+    </main>
+
+    <div id="fullscreen-view" class="hidden">
+        <span id="close-fullscreen" title="Close">&times;</span>
+        <img id="fullscreen-image" src="" alt="Fullscreen generated cosplay">
+    </div>
+
+    <script src="config.js"></script>
+    <script type="module" src="script.js"></script>
+</body>
+</html>
