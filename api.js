@@ -119,63 +119,35 @@ export async function fetchAccountBalance(apiKey) {
   return Number(data.balance);
 }
 
-export async function uploadReferenceImage(file, apiKey) {
-  if (!apiKey) {
-    throw new Error("Enter a Pollinations API key to upload the reference image.");
-  }
-
-  const config = getRuntimeConfig();
-  const formData = new FormData();
-  formData.append("file", file);
-
-  const response = await fetch(`${normalizeBaseUrl(config.POLLINATIONS_MEDIA_BASE_URL)}/upload`, {
-    method: "POST",
-    headers: buildAuthHeaders(apiKey),
-    body: formData
-  });
-
-  if (!response.ok) {
-    throw new Error(await extractErrorMessage(response));
-  }
-
-  const data = await response.json();
-  if (!data?.url) {
-    throw new Error("Upload succeeded but no reference image URL was returned.");
-  }
-
-  return data.url;
-}
-
 export async function generateCosplayImage({
   apiKey,
   prompt,
   model,
   quality,
   size,
-  referenceImageUrl
+  referenceImage
 }) {
   if (!apiKey) {
     throw new Error("Enter a Pollinations API key before generating.");
   }
+  if (!referenceImage) {
+    throw new Error("A reference image is required for cosplay generation.");
+  }
 
   const config = getRuntimeConfig();
   const { width, height } = parseSize(size || config.DEFAULT_IMAGE_SIZE);
-  const payload = {
-    prompt,
-    model: model || config.DEFAULT_IMAGE_MODEL,
-    quality: quality || config.DEFAULT_IMAGE_QUALITY,
-    response_format: "url",
-    size: `${width}x${height}`,
-    image: referenceImageUrl
-  };
+  const formData = new FormData();
+  formData.append("prompt", prompt);
+  formData.append("model", model || config.DEFAULT_IMAGE_MODEL);
+  formData.append("quality", quality || config.DEFAULT_IMAGE_QUALITY);
+  formData.append("response_format", "url");
+  formData.append("size", `${width}x${height}`);
+  formData.append("image", referenceImage);
 
-  const response = await fetch(`${normalizeBaseUrl(config.POLLINATIONS_API_BASE_URL)}/v1/images/generations`, {
+  const response = await fetch(`${normalizeBaseUrl(config.POLLINATIONS_API_BASE_URL)}/v1/images/edits`, {
     method: "POST",
-    headers: {
-      ...buildAuthHeaders(apiKey),
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify(payload)
+    headers: buildAuthHeaders(apiKey),
+    body: formData
   });
 
   if (!response.ok) {

@@ -4,8 +4,7 @@ import {
   formatPollenAmount,
   generateCosplayImage,
   getStoredApiKey,
-  setStoredApiKey,
-  uploadReferenceImage
+  setStoredApiKey
 } from "./api.js";
 
 document.addEventListener("DOMContentLoaded", () => {
@@ -307,9 +306,6 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     try {
-      setLoading(true, "Uploading your reference image…");
-      const referenceImageUrl = await uploadReferenceImage(referenceFile, getApiKey());
-
       setLoading(true, "Generating cosplay image…");
       const imageUrl = await generateCosplayImage({
         apiKey: getApiKey(),
@@ -317,7 +313,7 @@ document.addEventListener("DOMContentLoaded", () => {
         model: imageModelSelect.value,
         quality: imageQualitySelect.value,
         size: imageSizeSelect.value,
-        referenceImageUrl
+        referenceImage: referenceFile
       });
 
       generatedImageUrl = imageUrl;

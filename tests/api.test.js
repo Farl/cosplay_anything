@@ -7,8 +7,7 @@ import {
   formatImagePriceLabel,
   formatPollenAmount,
   generateCosplayImage,
-  parseSize,
-  uploadReferenceImage
+  parseSize
 } from "../api.js";
 
 test("fetchImageModels only returns image-edit capable models with pricing labels", async () => {
@@ -67,35 +66,7 @@ test("fetchAccountBalance returns null for unauthorized keys", async () => {
   assert.equal(await fetchAccountBalance("pk_demo"), null);
 });
 
-test("uploadReferenceImage posts multipart form data to the media API", async () => {
-  global.window = {
-    AI_COSPLAY_CONFIG: {
-      POLLINATIONS_MEDIA_BASE_URL: "https://media.pollinations.ai"
-    }
-  };
-
-  global.fetch = async (url, options = {}) => {
-    assert.equal(url, "https://media.pollinations.ai/upload");
-    assert.equal(options.method, "POST");
-    assert.equal(options.headers.Authorization, "Bearer pk_demo");
-    assert.ok(options.body instanceof FormData);
-
-    return new Response(JSON.stringify({
-      url: "https://media.pollinations.ai/hash123"
-    }), {
-      status: 200,
-      headers: { "Content-Type": "application/json" }
-    });
-  };
-
-  const file = new File(["demo"], "demo.png", { type: "image/png" });
-  assert.equal(
-    await uploadReferenceImage(file, "pk_demo"),
-    "https://media.pollinations.ai/hash123"
-  );
-});
-
-test("generateCosplayImage sends the uploaded reference URL to the OpenAI-compatible endpoint", async () => {
+test("generateCosplayImage sends multipart form data to the image edits endpoint", async () => {
   global.window = {
     AI_COSPLAY_CONFIG: {
       POLLINATIONS_API_BASE_URL: "https://gen.pollinations.ai"
@@ -103,20 +74,16 @@ test("generateCosplayImage sends the uploaded reference URL to the OpenAI-compat
   };
 
   global.fetch = async (url, options = {}) => {
-    assert.equal(url, "https://gen.pollinations.ai/v1/images/generations");
+    assert.equal(url, "https://gen.pollinations.ai/v1/images/edits");
     assert.equal(options.method, "POST");
     assert.equal(options.headers.Authorization, "Bearer pk_demo");
-    assert.equal(options.headers["Content-Type"], "application/json");
-
-    const payload = JSON.parse(options.body);
-    assert.deepEqual(payload, {
-      prompt: "cosplay prompt",
-      model: "kontext",
-      quality: "medium",
-      response_format: "url",
-      size: "1024x1024",
-      image: "https://media.pollinations.ai/hash123"
-    });
+    assert.ok(options.body instanceof FormData);
+    assert.equal(options.body.get("prompt"), "cosplay prompt");
+    assert.equal(options.body.get("model"), "kontext");
+    assert.equal(options.body.get("quality"), "medium");
+    assert.equal(options.body.get("size"), "1024x1024");
+    assert.equal(options.body.get("response_format"), "url");
+    assert.ok(options.body.get("image") instanceof File);
 
     return new Response(JSON.stringify({
       created: Date.now(),
@@ -127,14 +94,18 @@ test("generateCosplayImage sends the uploaded reference URL to the OpenAI-compat
     });
   };
 
-  assert.equal(await generateCosplayImage({
-    apiKey: "pk_demo",
-    prompt: "cosplay prompt",
-    model: "kontext",
-    quality: "medium",
-    size: "1024x1024",
-    referenceImageUrl: "https://media.pollinations.ai/hash123"
-  }), "https://image.pollinations.ai/output.png");
+  const file = new File(["demo"], "demo.png", { type: "image/png" });
+  assert.equal(
+    await generateCosplayImage({
+      apiKey: "pk_demo",
+      prompt: "cosplay prompt",
+      model: "kontext",
+      quality: "medium",
+      size: "1024x1024",
+      referenceImage: file
+    }),
+    "https://image.pollinations.ai/output.png"
+  );
 });
 
 test("format helpers keep pricing readable", () => {
