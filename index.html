@@ -63,15 +63,21 @@
                     <p>Your key is saved in this browser only. Create one at <a href="https://enter.pollinations.ai" target="_blank" rel="noreferrer">enter.pollinations.ai</a>.</p>
                 </div>
 
-                <div class="key-row">
-                    <div class="form-group form-group-wide">
-                        <label for="api-key-input">Pollinations API key</label>
-                        <input id="api-key-input" type="password" autocomplete="off" spellcheck="false" placeholder="pk_..." />
+                <section class="key-card">
+                    <div class="key-card-copy">
+                        <span class="status-label">Connect Pollinations</span>
+                        <h3>Paste your `pk_...` key here</h3>
+                        <p class="helper-copy" id="api-key-note">Publishable keys are best for client-side apps like GitHub Pages.</p>
                     </div>
-                    <button id="save-key-btn" type="button" class="secondary-btn">Save key</button>
-                    <button id="clear-key-btn" type="button" class="ghost-btn">Clear</button>
-                </div>
-                <p class="helper-copy" id="api-key-note">Publishable keys are best for client-side apps like GitHub Pages.</p>
+                    <div class="key-row">
+                        <div class="form-group form-group-wide">
+                            <label for="api-key-input">Pollinations API key</label>
+                            <input id="api-key-input" type="text" autocomplete="off" spellcheck="false" placeholder="pk_..." />
+                        </div>
+                        <button id="save-key-btn" type="button" class="secondary-btn">Save key</button>
+                        <button id="clear-key-btn" type="button" class="ghost-btn">Clear</button>
+                    </div>
+                </section>
 
                 <div class="form-grid">
                     <div class="form-group">
