@@ -72,6 +72,16 @@ function normalizeImageModel(model) {
   };
 }
 
+function getImageResultUrl(result) {
+  if (result?.url) {
+    return result.url;
+  }
+  if (result?.b64_json) {
+    return `data:image/png;base64,${result.b64_json}`;
+  }
+  return "";
+}
+
 async function extractErrorMessage(response) {
   try {
     const data = await response.json();
@@ -155,9 +165,9 @@ export async function generateCosplayImage({
   }
 
   const data = await response.json();
-  const imageUrl = data?.data?.[0]?.url;
+  const imageUrl = getImageResultUrl(data?.data?.[0]);
   if (!imageUrl) {
-    throw new Error("Image generation completed but no output URL was returned.");
+    throw new Error("Image generation completed but no usable image payload was returned.");
   }
   return imageUrl;
 }

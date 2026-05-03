@@ -108,6 +108,35 @@ test("generateCosplayImage sends multipart form data to the image edits endpoint
   );
 });
 
+test("generateCosplayImage falls back to b64_json when no URL is returned", async () => {
+  global.window = {
+    AI_COSPLAY_CONFIG: {
+      POLLINATIONS_API_BASE_URL: "https://gen.pollinations.ai"
+    }
+  };
+
+  global.fetch = async () => new Response(JSON.stringify({
+    created: Date.now(),
+    data: [{ b64_json: "ZmFrZS1pbWFnZQ==" }]
+  }), {
+    status: 200,
+    headers: { "Content-Type": "application/json" }
+  });
+
+  const file = new File(["demo"], "demo.png", { type: "image/png" });
+  assert.equal(
+    await generateCosplayImage({
+      apiKey: "pk_demo",
+      prompt: "cosplay prompt",
+      model: "kontext",
+      quality: "medium",
+      size: "1024x1024",
+      referenceImage: file
+    }),
+    "data:image/png;base64,ZmFrZS1pbWFnZQ=="
+  );
+});
+
 test("format helpers keep pricing readable", () => {
   assert.equal(formatPollenAmount(1.234567), "1.234567");
   assert.equal(formatImagePriceLabel({ completionImageTokens: "0.001" }), "0.001 pollen / image");
